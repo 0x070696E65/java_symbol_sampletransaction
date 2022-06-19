@@ -43,12 +43,12 @@ public class JavaSymbolSampleTransaction {
         System.out.println(toHex(alicePrivateKey.getEncoded()));
         System.out.println(toHex(alicePublicKey.getEncoded()));
 
-        final MessageDigest sha3256Digest = MessageDigest.getInstance("SHA3-256", "BC");
+        MessageDigest sha3256Digest = MessageDigest.getInstance("SHA3-256", "BC");
         sha3256Digest.update(alicePublicKey.getEncoded());
-        final byte[] publicKeyHash = sha3256Digest.digest();
-        final MessageDigest ripemd160Digest = MessageDigest.getInstance("RIPEMD160", "BC");
+        byte[] publicKeyHash = sha3256Digest.digest();
+        MessageDigest ripemd160Digest = MessageDigest.getInstance("RIPEMD160", "BC");
         ripemd160Digest.update(publicKeyHash);
-        final byte[] addressBody = ripemd160Digest.digest();
+        byte[] addressBody = ripemd160Digest.digest();
         byte[] decodedAddress = new byte[24];
         decodedAddress[0] = (byte) 152;
         arraycopy(addressBody, 0, decodedAddress, 1, 20);
@@ -60,26 +60,26 @@ public class JavaSymbolSampleTransaction {
         arraycopy(resultHash, 0, decodedAddress, 20 + 1, 3);
         byte[] padded = new byte[24 + 1];
         arraycopy(decodedAddress, 0, padded, 0, decodedAddress.length);
-        final Base32 codec = new Base32();
-        final byte[] encodedBytes = codec.encode(padded);
+        Base32 codec = new Base32();
+        byte[] encodedBytes = codec.encode(padded);
         String address = new String(encodedBytes, StandardCharsets.UTF_8).toUpperCase().substring(0, 39);
         System.out.println(address);
 
         // トランザクション構築
-        final byte[] version = new byte[] { 1 };
-        final byte[] networkType = new byte[] { (byte)152 };
-        final byte[] transactionType = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short)16724).array();
-        final byte[] fee = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(16000).array();
+        byte[] version = new byte[] { 1 };
+        byte[] networkType = new byte[] { (byte)152 };
+        byte[] transactionType = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short)16724).array();
+        byte[] fee = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(16000).array();
         long secondLater7200 = (Instant.now().getEpochSecond() + 7200 - 1637848847) * 1000;
-        final byte[] deadline = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(secondLater7200).array();
-        final byte[] recipientAddress = codec.decode("ADDRESS");
-        final byte[] mosaicCount = new byte[] { 1 };
-        final byte[] mosaicId = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(Long.decode("0x3A8416DB2D53B6C8")).array();
-        final byte[] mosaicAmount = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(100).array();
-        final byte[] message = "Hello Symbol!".getBytes(StandardCharsets.UTF_8);
-        final byte[] messageSize = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short)("Hello Symbol!".getBytes(StandardCharsets.UTF_8).length + 1)).array();
+        byte[] deadline = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(secondLater7200).array();
+        byte[] recipientAddress = codec.decode("ADDRESS");
+        byte[] mosaicCount = new byte[] { 1 };
+        byte[] mosaicId = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(Long.decode("0x3A8416DB2D53B6C8")).array();
+        byte[] mosaicAmount = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(100).array();
+        byte[] message = "Hello Symbol!".getBytes(StandardCharsets.UTF_8);
+        byte[] messageSize = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short)("Hello Symbol!".getBytes(StandardCharsets.UTF_8).length + 1)).array();
 
-        final String verifiableBody = toHex(version)
+        String verifiableBody = toHex(version)
                 + toHex(networkType)
                 + toHex(transactionType)
                 + toHex(fee)
@@ -92,7 +92,7 @@ public class JavaSymbolSampleTransaction {
                 + toHex(mosaicAmount)
                 + "00" + toHex(message);
 
-        final String verifiableString = "7fccd304802016bebbcd342a332f91ff1f3bb5e902988b352697be245f48e836"
+        String verifiableString = "7fccd304802016bebbcd342a332f91ff1f3bb5e902988b352697be245f48e836"
                 + verifiableBody;
 
         byte[] verifiableBuffer = getBytes(verifiableString);
@@ -102,7 +102,7 @@ public class JavaSymbolSampleTransaction {
         byte[] signature = signer.generateSignature();
 
         // トランザクション通知
-        final byte[] transactionSize = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(getBytes(verifiableBody).length + 108).array();
+        byte[] transactionSize = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(getBytes(verifiableBody).length + 108).array();
         var payloadString = toHex(transactionSize)
                 + "00000000"
                 + toHex(signature)
@@ -146,16 +146,16 @@ public class JavaSymbolSampleTransaction {
         System.out.println("explorer: https://testnet.symbol.fyi/transactions/" +  toHex(transactionHash));
     }
 
-    public static String toHex(final byte[] bytes) {
-        final Hex codec = new Hex();
-        final byte[] decodedBytes = codec.encode(bytes);
+    public static String toHex(byte[] bytes) {
+        Hex codec = new Hex();
+        byte[] decodedBytes = codec.encode(bytes);
         return new String(decodedBytes, StandardCharsets.UTF_8).toUpperCase();
     }
 
-    private static byte[] getBytes(final String hexString) throws DecoderException {
-        final Hex codec = new Hex();
-        final String paddedHexString = 0 == hexString.length() % 2 ? hexString : "0" + hexString;
-        final byte[] encodedBytes = paddedHexString.getBytes(StandardCharsets.UTF_8);
+    private static byte[] getBytes(String hexString) throws DecoderException {
+        Hex codec = new Hex();
+        String paddedHexString = 0 == hexString.length() % 2 ? hexString : "0" + hexString;
+        byte[] encodedBytes = paddedHexString.getBytes(StandardCharsets.UTF_8);
         return codec.decode(encodedBytes);
     }
 }
