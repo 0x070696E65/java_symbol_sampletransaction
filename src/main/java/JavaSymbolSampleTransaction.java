@@ -38,7 +38,7 @@ public class JavaSymbolSampleTransaction {
         System.out.println(toHex(publicKey.getEncoded()));
 
         // アカウント復元
-        Ed25519PrivateKeyParameters alicePrivateKey = new Ed25519PrivateKeyParameters(getBytes("BBD394D0EE4E10650D5BF15D1389580C6A6C044481E52022A98CD288A2EB679D"), 0);
+        Ed25519PrivateKeyParameters alicePrivateKey = new Ed25519PrivateKeyParameters(getBytes("PRIVATE_KEY"), 0);
         Ed25519PublicKeyParameters alicePublicKey = alicePrivateKey.generatePublicKey();
         System.out.println(toHex(alicePrivateKey.getEncoded()));
         System.out.println(toHex(alicePublicKey.getEncoded()));
@@ -72,7 +72,7 @@ public class JavaSymbolSampleTransaction {
         final byte[] fee = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(16000).array();
         long secondLater7200 = (Instant.now().getEpochSecond() + 7200 - 1637848847) * 1000;
         final byte[] deadline = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(secondLater7200).array();
-        final byte[] recipientAddress = codec.decode("TBS2EI4K66LVQ57HMUFXYAJQGIFUR25Z4GTFZUI");
+        final byte[] recipientAddress = codec.decode("ADDRESS");
         final byte[] mosaicCount = new byte[] { 1 };
         final byte[] mosaicId = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(Long.decode("0x3A8416DB2D53B6C8")).array();
         final byte[] mosaicAmount = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(100).array();
