@@ -76,8 +76,9 @@ public class JavaSymbolSampleTransaction {
         byte[] mosaicCount = new byte[] { 1 };
         byte[] mosaicId = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(Long.decode("0x3A8416DB2D53B6C8")).array();
         byte[] mosaicAmount = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(100).array();
-        byte[] message = "Hello Symbol!".getBytes(StandardCharsets.UTF_8);
-        byte[] messageSize = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short)("Hello Symbol!".getBytes(StandardCharsets.UTF_8).length + 1)).array();
+        String messageStr = "Hello Symbol!";
+        byte[] message = messageStr.getBytes(StandardCharsets.UTF_8);
+        byte[] messageSize = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short)(messageStr.getBytes(StandardCharsets.UTF_8).length + 1)).array();
 
         String verifiableBody = toHex(version)
                 + toHex(networkType)
