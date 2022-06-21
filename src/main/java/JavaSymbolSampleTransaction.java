@@ -43,27 +43,19 @@ public class JavaSymbolSampleTransaction {
         System.out.println(toHex(alicePrivateKey.getEncoded()));
         System.out.println(toHex(alicePublicKey.getEncoded()));
 
-        MessageDigest sha3256Digest = MessageDigest.getInstance("SHA3-256", "BC");
-        sha3256Digest.update(alicePublicKey.getEncoded());
-        byte[] publicKeyHash = sha3256Digest.digest();
-        MessageDigest ripemd160Digest = MessageDigest.getInstance("RIPEMD160", "BC");
-        ripemd160Digest.update(publicKeyHash);
-        byte[] addressBody = ripemd160Digest.digest();
-        byte[] decodedAddress = new byte[24];
-        decodedAddress[0] = (byte) 152;
-        arraycopy(addressBody, 0, decodedAddress, 1, 20);
-        byte[] hash = new byte[20 + 1];
-        arraycopy(decodedAddress, 0, hash, 0, 20 + 1);
-        System.out.println(toHex(hash));
-        sha3256Digest.update(hash);
-        byte[] resultHash = sha3256Digest.digest();
-        arraycopy(resultHash, 0, decodedAddress, 20 + 1, 3);
-        byte[] padded = new byte[24 + 1];
-        arraycopy(decodedAddress, 0, padded, 0, decodedAddress.length);
-        Base32 codec = new Base32();
-        byte[] encodedBytes = codec.encode(padded);
-        String address = new String(encodedBytes, StandardCharsets.UTF_8).toUpperCase().substring(0, 39);
-        System.out.println(address);
+        MessageDigest addressHasher = MessageDigest.getInstance("SHA3-256", "BC");
+        addressHasher.update(alicePublicKey.getEncoded());
+        byte[] publicKeyHash = addressHasher.digest();
+        MessageDigest addressBodyHasher = MessageDigest.getInstance("RIPEMD160", "BC");
+        addressBodyHasher.update(publicKeyHash);
+        byte[] addressBody = addressBodyHasher.digest();
+        MessageDigest sumHasher = MessageDigest.getInstance("SHA3-256", "BC");
+        sumHasher.update(getBytes("98" + toHex(addressBody)));
+        var preSumHash = sumHasher.digest();
+        var sumHash = new byte[3];
+        arraycopy(preSumHash, 0, sumHash, 0, 3);
+        String aliceAddress = new String(new Base32().encode(getBytes("98" + toHex(addressBody) + toHex(sumHash))), StandardCharsets.UTF_8).toUpperCase();
+        System.out.println(aliceAddress);
 
         // トランザクション構築
         byte[] version = new byte[] { 1 };
@@ -72,7 +64,7 @@ public class JavaSymbolSampleTransaction {
         byte[] fee = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(16000).array();
         long secondLater7200 = (Instant.now().getEpochSecond() + 7200 - 1637848847) * 1000;
         byte[] deadline = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(secondLater7200).array();
-        byte[] recipientAddress = codec.decode("ADDRESS");
+        byte[] recipientAddress = new Base32().decode("TBS2EI4K66LVQ57HMUFXYAJQGIFUR25Z4GTFZUI");
         byte[] mosaicCount = new byte[] { 1 };
         byte[] mosaicId = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(Long.decode("0x3A8416DB2D53B6C8")).array();
         byte[] mosaicAmount = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(100).array();
@@ -140,8 +132,9 @@ public class JavaSymbolSampleTransaction {
                         + verifiableString
         );
 
-        sha3256Digest.update(hashableBuffer);
-        var transactionHash = sha3256Digest.digest();
+        MessageDigest hasher = MessageDigest.getInstance("SHA3-256", "BC");
+        hasher.update(hashableBuffer);
+        var transactionHash = hasher.digest();
         System.out.println("transactionStatus: https://sym-test-02.opening-line.jp:3001/transactionStatus/" + toHex(transactionHash));
         System.out.println("confirmed: https://sym-test-02.opening-line.jp:3001/transactions/confirmed/" + toHex(transactionHash));
         System.out.println("explorer: https://testnet.symbol.fyi/transactions/" +  toHex(transactionHash));
